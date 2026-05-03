@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventHub — Plan, Promote & Manage Events</title>
+  <meta name="description" content="EventHub is a premium event management platform. Plan, promote, and manage events with customizable features for an engaging experience.">
+  <meta property="og:title" content="EventHub — Event Management Platform">
+  <meta property="og:description" content="Plan, promote, and manage events with customizable features for an engaging experience.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/events.css">
+  <link rel="stylesheet" href="css/create.css">
+  <link rel="stylesheet" href="css/detail.css">
+  <link rel="stylesheet" href="css/tickets.css">
+  <style>
+    /* Profile Modal Styles */
+    .profile-modal-content { max-width: 640px; }
+    .profile-header-section { display: flex; align-items: center; gap: 20px; padding: 24px; border-bottom: 1px solid var(--border); }
+    .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: white; flex-shrink: 0; }
+    .profile-header-info h3 { font-size: 22px; font-weight: 700; }
+    .profile-header-info p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+    .profile-stats-row { display: flex; gap: 16px; margin-top: 12px; }
+    .profile-stat { text-align: center; padding: 8px 16px; background: rgba(99,102,241,0.08); border-radius: var(--radius-md); }
+    .profile-stat-val { font-size: 20px; font-weight: 800; color: var(--primary-light); }
+    .profile-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .profile-form { padding: 24px; }
+    .profile-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .profile-form .form-group { margin-bottom: 16px; }
+    .profile-actions { padding: 0 24px 24px; display: flex; gap: 12px; justify-content: flex-end; }
+    #userProfileBtn { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">E</div>
+        <span class="sidebar-title">EventHub</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main</div>
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="#events" class="nav-item" data-page="events">
+          <span class="nav-icon">🎉</span> Discover
+          <span class="nav-badge">6</span>
+        </a>
+        <a href="#create" class="nav-item" data-page="create">
+          <span class="nav-icon">✨</span> Create Event
+        </a>
+        <div class="nav-section-title">Management</div>
+        <a href="#tickets" class="nav-item" data-page="tickets">
+          <span class="nav-icon">🎟️</span> Tickets
+          <span class="nav-badge">12</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-profile" id="userProfileBtn" title="Edit Profile">
+          <div class="user-avatar">JD</div>
+          <div class="user-info">
+            <div class="user-name">Jordan Davis</div>
+            <div class="user-role">Event Organizer</div>
+          </div>
+          <span style="margin-left:auto;color:var(--text-muted);font-size:14px">✏️</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle" id="menuToggle">☰</button>
+          <h2 class="page-title-header" id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="header-right">
+          <div class="header-search">
+            <span class="header-search-icon">🔍</span>
+            <input type="text" placeholder="Search events, tickets..." id="globalSearch">
+          </div>
+          <button class="header-btn" title="Notifications">
+            🔔
+            <span class="notification-dot"></span>
+          </button>
+          <button class="header-btn" title="Settings">⚙️</button>
+        </div>
+      </header>
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <section id="page-dashboard" class="page-section active">
+        <div class="dashboard-hero">
+          <div class="hero-content">
+            <div class="hero-greeting">Good morning, Jordan 👋</div>
+            <h1 class="hero-title">Event Management Hub</h1>
+            <p class="hero-subtitle">Plan, promote, and manage your events with powerful tools and real-time analytics.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" onclick="window.location.hash='create'">✨ Create New Event</button>
+              <button class="btn btn-secondary btn-lg" onclick="window.location.hash='events'">🔍 Browse Events</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Upcoming Events</h3>
+                <p class="card-subtitle">Your next scheduled events</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="window.location.hash='events'">View All →</button>
+            </div>
+            <div class="upcoming-events-list" id="upcomingEvents"></div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:24px">
+              <div class="card-header">
+                <h3 class="card-title">Recent Activity</h3>
+              </div>
+              <div class="activity-list" id="activityFeed"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Sales Overview</h3>
+                <span class="badge badge-success">+18%</span>
+              </div>
+              <div class="mini-chart" id="miniChart"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EVENTS PAGE ===== -->
+      <section id="page-events" class="page-section">
+        <div class="events-header">
+          <div class="events-title-section">
+            <h2>Discover Events</h2>
+            <p>Find and explore amazing events near you</p>
+          </div>
+          <button class="btn btn-primary" onclick="window.location.hash='create'">✨ Create Event</button>
+        </div>
+
+        <div class="search-filter-bar">
+          <div class="event-search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="eventSearchInput" placeholder="Search events by name, city, or category...">
+          </div>
+          <button class="filter-btn">📅 Date</button>
+          <button class="filter-btn">📍 Location</button>
+        </div>
+
+        <div class="category-chips" id="categoryChips"></div>
+        <div class="events-grid" id="eventsGrid"></div>
+      </section>
+
+      <!-- ===== CREATE EVENT PAGE ===== -->
+      <section id="page-create" class="page-section">
+        <div class="wizard-progress">
+          <div class="wizard-step active">
+            <div class="step-circle">1</div>
+            <span class="step-label">Basic Info</span>
+          </div>
+          <div class="wizard-step">
+            <div class="step-circle">2</div>
+            <span class="step-label">Date & Location</span>
+          </div>
+          <div class="wizard-step">
+            <div class="step-circle">3</div>
+            <span class="step-label">Tickets</span>
+          </div>
+          <div class="wizard-step">
+            <div class="step-circle">4</div>
+            <span class="step-label">Review</span>
+          </div>
+        </div>
+
+        <div class="create-layout">
+          <div class="wizard-form-panel">
+            <!-- Step 1 -->
+            <div class="wizard-step-content active" id="wizardStep1">
+              <h2 class="wizard-step-title">Basic Information</h2>
+              <p class="wizard-step-desc">Tell us about your event</p>
+              <div class="form-group">
+                <label class="form-label">Event Title *</label>
+                <input type="text" class="form-input" id="eventTitle" placeholder="Give your event a catchy title">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" id="eventDescription" placeholder="Describe what makes your event special..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="eventCategory">
+                  <option value="music">🎵 Music</option>
+                  <option value="tech">💻 Technology</option>
+                  <option value="sports">⚽ Sports</option>
+                  <option value="art">🎨 Art & Culture</option>
+                  <option value="food">🍕 Food & Drink</option>
+                  <option value="business">💼 Business</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="wizard-step-content" id="wizardStep2">
+              <h2 class="wizard-step-title">Date & Location</h2>
+              <p class="wizard-step-desc">When and where is it happening?</p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Start Date *</label>
+                  <input type="date" class="form-input" id="eventDate">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Start Time *</label>
+                  <input type="time" class="form-input" id="eventTime">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="toggle-switch" id="onlineToggle">
+                  <div class="toggle-track"></div>
+                  <span class="toggle-label">This is an online event</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Venue Name</label>
+                <input type="text" class="form-input" id="eventVenue" placeholder="e.g. Grand Convention Center">
+              </div>
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" class="form-input" id="eventCity" placeholder="e.g. San Francisco, CA">
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="wizard-step-content" id="wizardStep3">
+              <h2 class="wizard-step-title">Tickets & Pricing</h2>
+              <p class="wizard-step-desc">Set up your ticket tiers</p>
+              <div id="ticketTiers">
+                <div class="ticket-tier">
+                  <div class="ticket-tier-header">
+                    <span class="ticket-tier-name">General Admission</span>
+                    <button class="remove-tier-btn" onclick="this.closest('.ticket-tier').remove()">✕</button>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Tier Name</label>
+                      <input type="text" class="form-input" value="General Admission">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Price ($)</label>
+                      <input type="number" class="form-input" placeholder="0" min="0">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Quantity Available</label>
+                    <input type="number" class="form-input" value="100" min="1">
+                  </div>
+                </div>
+                <button class="add-tier-btn" onclick="addTicketTier()">+ Add Another Tier</button>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="wizard-step-content" id="wizardStep4">
+              <h2 class="wizard-step-title">Review & Publish</h2>
+              <p class="wizard-step-desc">Almost there! Review your event details</p>
+              <div class="image-upload-area">
+                <div class="upload-icon">📷</div>
+                <p class="upload-text">Drag & drop your event banner or <span>browse files</span></p>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Recommended: 1920×1080px, PNG or JPG</p>
+              </div>
+              <div style="margin-top:24px">
+                <div class="form-group">
+                  <label class="form-label">Tags (comma separated)</label>
+                  <input type="text" class="form-input" placeholder="e.g. music, outdoor, festival">
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-actions">
+              <button class="btn btn-ghost" id="wizardPrev" onclick="prevStep()" style="visibility:hidden">← Back</button>
+              <button class="btn btn-primary" id="wizardNext" onclick="nextStep()">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Live Preview -->
+          <div class="preview-panel">
+            <div class="preview-title">👁️ Live Preview</div>
+            <div class="preview-card">
+              <div class="preview-image">📷</div>
+              <div class="preview-body">
+                <div class="preview-event-title" id="previewTitle">Event Title</div>
+                <div class="preview-event-date" id="previewDate">📅 Select a date</div>
+                <div class="preview-event-location" id="previewLocation">📍 Add a venue</div>
+                <div class="preview-event-price" id="previewPrice">Free</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EVENT DETAIL PAGE ===== -->
+      <section id="page-detail" class="page-section"></section>
+
+      <!-- ===== TICKETS PAGE ===== -->
+      <section id="page-tickets" class="page-section">
+        <div class="tickets-header">
+          <div>
+            <h2 style="font-size:24px;font-weight:700">Ticket Management</h2>
+            <p style="font-size:14px;color:var(--text-muted);margin-top:4px">Track sales, manage attendees, and export reports</p>
+          </div>
+          <button class="btn btn-secondary">📥 Export Report</button>
+        </div>
+
+        <div class="ticket-stats-row" id="ticketStatsRow"></div>
+
+        <div class="sales-chart-container">
+          <div class="chart-header">
+            <h3 class="chart-title">Sales Overview</h3>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> VIP</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--primary-light)"></div> General</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div> Free</div>
+            </div>
+          </div>
+          <div class="bar-chart" id="salesChart"></div>
+        </div>
+
+        <div class="ticket-table-container">
+          <div class="table-header-bar">
+            <div class="tickets-tabs">
+              <button class="ticket-tab active" data-filter="all" onclick="filterTickets('all')">All</button>
+              <button class="ticket-tab" data-filter="confirmed" onclick="filterTickets('confirmed')">Confirmed</button>
+              <button class="ticket-tab" data-filter="pending" onclick="filterTickets('pending')">Pending</button>
+              <button class="ticket-tab" data-filter="cancelled" onclick="filterTickets('cancelled')">Cancelled</button>
+            </div>
+            <div class="table-search">
+              <span style="color:var(--text-muted)">🔍</span>
+              <input type="text" placeholder="Search attendees...">
+            </div>
+          </div>
+          <table class="tickets-table">
+            <thead>
+              <tr>
+                <th>Attendee</th>
+                <th>Event</th>
+                <th>Ticket</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="attendeeTableBody"></tbody>
+          </table>
+          <div class="table-pagination">
+            <span class="pagination-info">Showing 1-12 of 12 results</span>
+            <div class="pagination-btns">
+              <button class="page-btn">←</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">→</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal profile-modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">👤 My Profile</h2>
+        <button class="modal-close" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div class="profile-header-section">
+        <div class="profile-avatar-large" id="profileAvatarPreview">JD</div>
+        <div class="profile-header-info">
+          <h3 id="profileNamePreview">Jordan Davis</h3>
+          <p id="profileRolePreview">Event Organizer</p>
+          <div class="profile-stats-row">
+            <div class="profile-stat">
+              <div class="profile-stat-val" id="profileEventsCount">0</div>
+              <div class="profile-stat-lbl">My Events</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val" id="profileTotalEvents">6</div>
+              <div class="profile-stat-lbl">Total Events</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-input" id="profileName" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="profileEmail" placeholder="your@email.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-input" id="profilePhone" placeholder="+1 (555) 000-0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company</label>
+            <input type="text" class="form-input" id="profileCompany" placeholder="Your organization">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" class="form-input" id="profileLocation" placeholder="City, State">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio</label>
+          <textarea class="form-textarea" id="profileBio" placeholder="Tell us about yourself..." style="min-height:80px"></textarea>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/create.js"></script>
+  <script src="js/detail.js"></script>
+  <script src="js/tickets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
